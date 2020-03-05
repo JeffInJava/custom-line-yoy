@@ -81,7 +81,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
          start_time="s020000";
          end_time="a020000";
      }
-	 String paramsString="start_date1="+start_date1+";start_date2="+start_date2+";flag="+flag;paramsString+=";start_time="+start_time+";end_time="+end_time+";part="+part;
+	 String paramsString="start_date1="+start_date1+";start_date2="+start_date2+";flag="+flag;paramsString+=";start_time="+start_time+";end_time="+end_time+";part="+part+";end_date1="+end_date1+";end_date2="+end_date2;
 //out.println(paramsString);
 
 		
