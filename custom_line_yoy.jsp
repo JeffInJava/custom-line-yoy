@@ -1,34 +1,31 @@
-<%@ page contentType="text/html; charset=gb2312" language="java" import="java.sql.*,java.util.*,java.lang.*,java.text.*" errorPage="errorpage.jsp" %>
+ï»¿<%@ page contentType="text/html;charset=utf-8" language="java" import="java.util.*,java.lang.*,java.sql.*,java.text.*,java.io.*"  errorPage="" pageEncoding="utf-8"%>
 <%@ taglib uri="/WEB-INF/runqianReport4.tld" prefix="report" %>
 <%
-String path = request.getContextPath();
-String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
+	String path = request.getContextPath();
+	String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
+	String baseUrl = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort();
 %>
+
 <html>
-<head>	
-   <base href="<%=basePath%>">
-   <script src="resource/jquery/js/jquery-1.7.2.js" type="text/javascript" charset="UTF-8"></script>
-    <script src="resource/jquery/js/jquery-ui-1.8.11.custom.min.js" type="text/javascript" charset="UTF-8"></script>
-    <link href="resource/jquery/css/jquery-ui-1.8.11.custom.css" rel="stylesheet" type="text/css" charset="UTF-8"/>
-    <script src="resource/jquery/js/jquery.ui.datepicker-zh-CN.js" type="text/javascript" charset="UTF-8"></script>
-</head>
-<body>
-<%
-	String start_date1=(String)request.getParameter("start_date1");
-	
-	String start_date2=(String)request.getParameter("start_date2");
-	
-	String com_date1=(String)request.getParameter("com_date1");
-	
-	String com_date2=(String)request.getParameter("com_date2");
-	
-	String date_flag=(String)request.getParameter("date_flag");
-	
-	String avg_total=(String)request.getParameter("avg_total");
-	
-	String rank_method=(String)request.getParameter("rank_method");
-	
-	String[] lines = request.getParameterValues("lines");
+<% 
+ 
+				String start_date1=request.getParameter("start_date1");
+				String start_date2=request.getParameter("start_date2");
+				String[] flags=request.getParameterValues("flag");
+				String model_id=request.getParameter("model_id");
+				String viewFlag=request.getParameter("viewFlag");
+				String flag="";
+				String urlString="";
+				String paramsString="";	
+				String addr_id="";	
+                String fir_hour=request.getParameter("fir_hour");
+				String fir_min=request.getParameter("fir_min");
+			    String sec_hour=request.getParameter("sec_hour");
+			    String sec_min=request.getParameter("sec_min");		  
+			    String addr=request.getParameter("addr_id");
+			    String selType=request.getParameter("selType");
+				
+				String[] lines = request.getParameterValues("lines");
 	
 	String strline="";
 		if(lines!=null){
@@ -40,274 +37,360 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			strline=strline.substring(1);
 		}
 		strline=strline.replaceAll("'","");
+				if(addr!=null){
+				   addr_id=new String(addr.getBytes("iso-8859-1"),"utf-8");
+				}
+				java.sql.Connection con=null;
+	 			java.sql.Statement st=null;
+	 			java.sql.ResultSet rs=null;	
+				
+				if(flags!=null){
+				   for(String tp:flags){	  
+					 flag+=","+tp;
+				   }
+				}else{
+					flag="1,3";
+				}
+              
+	 			SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");  
+				if(start_date2==null){
+	  				start_date2=df.format(new java.util.Date()); 
+      			}   
+				Calendar calendar = Calendar.getInstance(); 
+	 			if(start_date1==null){
+        			calendar.setTime(new java.util.Date());
+        			calendar.add(Calendar.DAY_OF_MONTH, -6);  
+	    			start_date1=df.format(calendar.getTime());
+                }  
+				String com_date1=request.getParameter("com_date1");
+				String com_date2=request.getParameter("com_date2");
+				if(com_date1==null){
+					calendar.setTime(new java.util.Date());
+        			calendar.add(Calendar.DAY_OF_MONTH, -13);  
+	    			com_date1=df.format(calendar.getTime());
+				}
+				if(com_date2==null){
+					calendar.setTime(new java.util.Date());
+        			calendar.add(Calendar.DAY_OF_MONTH, -7);  
+	    			com_date2=df.format(calendar.getTime());
+				}
+                String today=df.format(new java.util.Date());
 
-	SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");//ÉèÖÃÈÕÆÚ¸ñÊ½
-        
-	if(start_date1==null){
-	  start_date1=df.format(new java.util.Date()); 
-    }
-	if(start_date2==null){
-	  start_date2=start_date1; 
-    }	
-	if(com_date1==null){
-	    Calendar calendar = Calendar.getInstance(); 
-        calendar.setTime(new java.util.Date());
-        calendar.add(Calendar.DAY_OF_MONTH, -1);  
-	    com_date1=df.format(calendar.getTime());
-     }
-	 if(com_date2==null){
-	  com_date2=com_date1; 
-    }
-	 
-	 String[] flags=request.getParameterValues("flag");
-	 String flag="";
-	 if(flags!=null){
-	   	  for(String tp:flags){
-		      flag+=","+tp;
+			    String start_time=request.getParameter("start_time");
+			    String end_time=request.getParameter("end_time");
+			    String cur_time="a0200";
+			    
+			    if("00".equals(fir_hour)||"24".equals(sec_hour)){                              
+				    start_time="0200";
+				    end_time="a0200";
+				    if(Integer.parseInt(today)<=Integer.parseInt(start_date1)
+					  ||Integer.parseInt(today)<=Integer.parseInt(start_date2)
+					  ||Integer.parseInt(today)<=Integer.parseInt(com_date1)
+					  ||Integer.parseInt(today)<=Integer.parseInt(com_date2)){
+					     Calendar cal=Calendar.getInstance();
+					     cal.add(Calendar.MINUTE,-30);
+					     SimpleDateFormat sdf=new SimpleDateFormat("HHmm");
+					     cur_time=sdf.format( cal.getTime());
+				   }
+			    }
+                
+			    String part=request.getParameter("part");
+			    
+			    urlString="station.jsp?start_date1="+start_date1+"&start_date2="+start_date2+"&selType="+selType+"&start_time="+start_time
+			    		+"&end_time="+end_time+"&part="+part+"&cur_time="+cur_time;
+                              
+				paramsString="start_date1="+start_date1+";start_date2="+start_date2+";selType="+selType+";start_time="+start_time
+						+";end_time="+end_time+";part="+part+";cur_time="+cur_time;
+				
+				if(flag!=null&&flag.length()>1){
+					  urlString+="&flag="+flag.substring(1);
+					  paramsString+=";flag="+flag.substring(1);	
+			    }
+			  
+				if(addr_id!=null){
+					  urlString+="&addr_id="+addr_id;
+					  paramsString+=";addr_id="+addr_id;
+		  	    }	
+				if(model_id!=null){
+					  urlString+="&model_id="+model_id;
+					  paramsString+=";model_id="+model_id;
+				}
+				
+				String date_flag=request.getParameter("date_flag");
+				String avg_total=request.getParameter("avg_total");
+				if(avg_total==null){
+					avg_total="avg";
+				}
+				paramsString+=";com_date1="+com_date1+";com_date2="+com_date2+";date_flag="+date_flag+";avg_total="+avg_total+";cur_date="+today;
+			 //out.println(paramsString+"<br>"+flag);
+	 			request.setCharacterEncoding("utf-8");	
+				
+			try{
+
+                Properties properties = new Properties(); 
+	    		String paths = Thread.currentThread().getContextClassLoader().getResource("").toString();
+	    		paths=paths.replace("classes/", "config.properties");
+	    		paths=paths.replace("file:", "");
+	    		InputStream inputStream = new FileInputStream(paths); 
+	    		properties.load(inputStream); 
+	    		inputStream.close();
+				Class.forName(properties.getProperty("db.driver"));
+    		 	con=DriverManager.getConnection(properties.getProperty("db.url"),properties.getProperty("db.user"),properties.getProperty("db.pass"));		  
+		      	st=con.createStatement();
+		      	String sqlStr="select distinct model_id, trim(model_name)  model_name,trim(sub_model_name) addr_name from TBL_METRO_MODEL_STATION  order by model_id ";		              			 
+		      	rs=st.executeQuery(sqlStr);
+		   
+      		}catch(Exception e){ 
+				e.printStackTrace();
+		    }
+	  
+		%>
+
+<script>
+   var where=new Array(100);
+   function construct(model_id,model_name,addr_name){
+       this.model_id=model_id;
+	   this.model_name=model_name;
+	   this.addr_name=addr_name;
+   }
+ <%
+	  int j=0;
+	 while(rs.next()){
+ %>
+   where[<%=j++%>]=new construct("<%=rs.getString("model_id")%>","<%=rs.getString("model_name")%>","<%=rs.getString("addr_name")%>");
+ <%}%>
+	     var r=<%=j%>;
+			 function aa(){	
+			 	var m_id=where[0].model_id;
+					for(var i=0;i<r;i++){
+						if(m_id!=where[i].model_id||i==0){
+							m_id=where[i].model_id;
+							var m_name=where[i].model_name;	
+							var optionObj = new Option(m_name,m_id); 
+					 		document.getElementById("model_id").options.add(optionObj);
+							}    			                			
+						}
+					
+                                                                                 var sselect=document.getElementById("model_id");
+                    				 for(var n=0;n<sselect.options.length;n++){			
+			           			 if(sselect.options[n].value=='<%=model_id%>'){                                                                  		
+			              				sselect.options[n].selected =true;
+						}
+				   
+		           			  }
+                             			change();
+                      			var ssel=document.getElementById("addr_id");
+                     			for(var n=0;n<ssel.options.length;n++){
+			           		 if(ssel.options[n].value=='<%=addr_id%>'){
+			              			ssel.options[n].selected =true;
+						}
+				   
+		            			 }                                 
+				}
+            function change(){
+				 var  myselect=document.getElementById("model_id");
+				 var index=myselect.selectedIndex ;             
+				 var select_id=myselect.options[index].value;
+				 document.getElementById("addr_id").innerHTML="";
+				 var obj = new Option("å…¨éƒ¨","å…¨éƒ¨"); 
+				 	document.getElementById("addr_id").options.add(obj);
+				for(var j=0;j<r;j++){
+					if(where[j].model_id==select_id){
+						var a_name=where[j].addr_name;				
+						var optionObj = new Option(a_name,a_name); 
+						document.getElementById("addr_id").options.add(optionObj);
+					}				    			                			
+				}
+
 		  }
-		  flag=flag.substring(1);
-	 }else{
-		 flag="1,3";
-	 }
-     String today=df.format(new java.util.Date());
-	 String fir_hour=request.getParameter("fir_hour")==null?"00":request.getParameter("fir_hour");
-	 String sec_hour=request.getParameter("sec_hour")==null?"00":request.getParameter("sec_hour");
-	 String fir_min=request.getParameter("fir_min")==null?"00":request.getParameter("fir_min");
-	 String sec_min=request.getParameter("sec_min")==null?"00":request.getParameter("sec_min");
-	 String start_time=fir_hour+fir_min+"00";
-	 String end_time=sec_hour+sec_min+"00";
-	 String part=request.getParameter("part");
-     if(("00".equals(fir_hour))||("00".equals(sec_hour))){
-         start_time="s020000";
-         end_time="a020000";
-     }
-	 String paramsString="start_date1="+start_date1+";com_date1="+com_date1+";flag="+flag;
-	 paramsString+=";start_time="+start_time+";end_time="+end_time+";part="+part+";start_date2="+start_date2+";com_date2="+com_date2;
-	 paramsString+=";avg_total="+avg_total+";lines="+lines+";rank_method="+rank_method;
-//out.println(paramsString);
+</script>
 
-		
-
-%>
-<form id="form1" action="<%=request.getContextPath()%>/param/custom_line_yoy.jsp">
-	<table>
-		<tr>
-			<td>
-				<table border="1">
-					<tr>
-						<td>²éÑ¯ÈÕÆÚ£º<input type=text name="start_date1" style="width:80px;" id="start_date1">-<input type=text name="start_date2" id="start_date2" style="width:80px;"> </td>
-						<td>¶Ô±ÈÈÕÆÚ£º<input type=text name="com_date1" style="width:80px;" id="com_date1">-<input type=text name="com_date2" id="com_date2" style="width:80px;"></td>
-						<td>ÈÕÆÚÀàĞÍ£º<select name="date_flag"  id="date_flag" >  
-								  <option value="">È«²¿</option>
-								  <option value="1">¹¤×÷ÈÕ</option>
-								  <option value="2">Ë«ĞİÈÕ</option>
-							</select>
-						</td>
-						<td>¿ªÊ¼Ê±¼äµã£º
-							<select name="fir_hour" id="fir_hour">
-								<option value="00">È«Ìì</option>
-								<option value="02">02</option>
-								<option value="03">03</option>
-								<option value="04">04</option>
-								<option value="05">05</option>
-								<option value="06">06</option>
-								<option value="07">07</option>
-								<option value="08">08</option>
-								<option value="09">09</option>
-								<option value="10">10</option>
-								<option value="11">11</option>
-								<option value="12">12</option>
-								<option value="13">13</option>
-								<option value="14">14</option>
-								<option value="15">15</option>
-								<option value="16">16</option>
-								<option value="17">17</option>
-								<option value="18">18</option>
-								<option value="19">19</option>
-								<option value="20">20</option>
-								<option value="21">21</option>
-								<option value="22">22</option>
-								<option value="23">23</option>
-								<option value="a00">+00</option>
-								<option value="a01">+01</option>
-								<option value="a02">+02</option>
-							</select>
-							<select name="fir_min" id="fir_min">
-								<option value="00">00</option>
-								<option value="05">05</option>
-								<option value="10">10</option>
-								<option value="15">15</option>
-								<option value="20">20</option>
-								<option value="25">25</option>
-								<option value="30">30</option>
-								<option value="35">35</option>
-								<option value="40">40</option>
-								<option value="45">45</option>
-								<option value="50">50</option>
-								<option value="55">55</option>
-							</select>
-						</td>
-						<td>½áÊøÊ±¼äµã£º
-							<select name="sec_hour" id="sec_hour">
-								<option value="00">È«Ìì</option>
-								<option value="02">02</option>
-								<option value="03">03</option>
-								<option value="04">04</option>
-								<option value="05">05</option>
-								<option value="06">06</option>
-								<option value="07">07</option>
-								<option value="08">08</option>
-								<option value="09">09</option>
-								<option value="10">10</option>
-								<option value="11">11</option>
-								<option value="12">12</option>
-								<option value="13">13</option>
-								<option value="14">14</option>
-								<option value="15">15</option>
-								<option value="16">16</option>
-								<option value="17">17</option>
-								<option value="18">18</option>
-								<option value="19">19</option>
-								<option value="20">20</option>
-								<option value="21">21</option>
-								<option value="22">22</option>
-								<option value="23">23</option>
-								<option value="a00">+00</option>
-								<option value="a01">+01</option>
-								<option value="a02">+02</option>
-							</select>
-							<select name="sec_min" id="sec_min">
-								<option value="00">00</option>
-								<option value="05">05</option>
-								<option value="10">10</option>
-								<option value="15">15</option>
-								<option value="20">20</option>
-								<option value="25">25</option>
-								<option value="30">30</option>
-								<option value="35">35</option>
-								<option value="40">40</option>
-								<option value="45">45</option>
-								<option value="50">50</option>
-								<option value="55">55</option>
-							</select>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<input type="checkbox" name="flag" value="1">½øÕ¾</input>
-							<input type="checkbox" name="flag" value="2">³öÕ¾</input>
-							<input type="checkbox" name="flag" value="3">»»³Ë</input> 
-						</td>
-						<td>
-								ÖµÀàĞÍ£º<select name="avg_total"  id="avg_total" >  
-									  <option value="avg">¾ùÖµ</option>
-									  <option value="total">×ÜºÍ</option>
-								</select>
-						</td>
-						<td>ÅÅĞò·½Ê½£º
-							<select name="rank_method" id="rank_method">
-								<option value='xl'>°´ÏßÂ·Ë³Ğò</option>
-								<option value='kl'>°´¿ÍÁ÷ÅÅÃûË³Ğò</option>
-								<option value='zl'>°´ÔöÁ¿ÅÅĞò</option>
-								<option value='zf'>°´Ôö·ùÅÅĞò</option>
-							</select>
-						</td>
-					</tr>
-					<tr>
+<head>
+	<title>è‡ªå®šä¹‰è½¦ç«™å®¢æµ</title>
+	 <base href="<%=basePath%>">	
+   <script src="resource/jquery/js/jquery-1.7.2.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="resource/jquery/js/jquery-ui-1.8.11.custom.min.js" type="text/javascript" charset="UTF-8"></script>
+    <link href="resource/jquery/css/jquery-ui-1.8.11.custom.css" rel="stylesheet" type="text/css" charset="UTF-8"/>
+    <script src="resource/jquery/js/jquery.ui.datepicker-zh-CN.js" type="text/javascript" charset="UTF-8"></script>
+</head>
+<body onload='aa();'>
+<form  name="form1" action="<%=request.getContextPath()%>/param/custom_line_yoy.jsp"  id="form1">
+   <table border="1px">
+	 <tr>
+		<td>
+			æŸ¥è¯¢æ—¥æœŸï¼š
+				<input type=text name="start_date1" id="start_date1" style="width:80px;">-<input type=text name="start_date2" id="start_date2" style="width:80px;">
+		 </td>
+		 <td>
+			å¯¹æ¯”æ—¥æœŸï¼š
+				<input type=text name="com_date1" id="com_date1" style="width:80px;">-<input type=text name="com_date2" id="com_date2" style="width:80px;">
+		 </td>
+		  <td>
+				æ¨¡æ¿ï¼š<select name="model_id" id="model_id" onchange="change();">  
+					         
+				</select>
+				<input type="hidden" name="viewFlag" id="viewFlag">
+		  </td>
+		  <td>
+				äºŒçº§æ¨¡æ¿ï¼š<select name="addr_id"  id="addr_id" >  
+					  <option value="å…¨éƒ¨">å…¨éƒ¨</option>
+				</select>
+		  </td>
+		  <td>
+				æ—¥æœŸç±»å‹ï¼š<select name="date_flag"  id="date_flag" >  
+					  <option value="">å…¨éƒ¨</option>
+					  <option value="1">å·¥ä½œæ—¥</option>
+					  <option value="2">åŒä¼‘æ—¥</option>
+				</select>
+		  </td>
+      </tr>
+	  <tr>
+		   <td >å¼€å§‹æ—¶é—´ç‚¹ï¼š
+		              <select name="fir_hour" id="fir_hour">
+							<option value="00">å…¨å¤©</option>
+							<option value="02">02</option>
+							<option value="03">03</option>
+							<option value="04">04</option>
+							<option value="05">05</option>
+							<option value="06">06</option>
+							<option value="07">07</option>
+							<option value="08">08</option>
+							<option value="09">09</option>
+							<option value="10">10</option>
+							<option value="11">11</option>
+							<option value="12">12</option>
+							<option value="13">13</option>
+							<option value="14">14</option>
+							<option value="15">15</option>
+							<option value="16">16</option>
+							<option value="17">17</option>
+							<option value="18">18</option>
+							<option value="19">19</option>
+							<option value="20">20</option>
+							<option value="21">21</option>
+							<option value="22">22</option>
+							<option value="23">23</option>
+							<option value="a00">+00</option>
+							<option value="a01">+01</option>
+							<option value="a02">+02</option>
+						</select>
+						<select name="fir_min" id="fir_min">
+							<option value="00">00</option>
+							<option value="30">30</option>
+						</select>
+		 </td>
+		 <td >ç»“æŸæ—¶é—´ç‚¹ï¼š
+						<select name="sec_hour" id="sec_hour">
+							<option value="24">å…¨å¤©</option>
+							<option value="02">02</option>
+							<option value="03">03</option>
+							<option value="04">04</option>
+							<option value="05">05</option>
+							<option value="06">06</option>
+							<option value="07">07</option>
+							<option value="08">08</option>
+							<option value="09">09</option>
+							<option value="10">10</option>
+							<option value="11">11</option>
+							<option value="12">12</option>
+							<option value="13">13</option>
+							<option value="14">14</option>
+							<option value="15">15</option>
+							<option value="16">16</option>
+							<option value="17">17</option>
+							<option value="18">18</option>
+							<option value="19">19</option>
+							<option value="20">20</option>
+							<option value="21">21</option>
+							<option value="22">22</option>
+							<option value="23">23</option>
+							<option value="a00">+00</option>
+							<option value="a01">+01</option>
+							<option value="a02">+02</option>
+						</select>
+						<select name="sec_min" id="sec_min">
+							<option value="00">00</option>
+							<option value="30">30</option>
+						</select>
+		</td>
+	    <td>
+                 <input type="checkbox" name="flag" value="1"  <%if(flag.indexOf('1')!=-1){%> checked="checked"<%}%>>è¿›ç«™</input>
+				 <input type="checkbox" name="flag" value="2"  <%if(flag.indexOf('2')!=-1){%> checked="checked"<%}%>>å‡ºç«™</input>
+				 <input type="checkbox" name="flag" value="3" <%if(flag.indexOf('3')!=-1){%> checked="checked"<%}%>>æ¢ä¹˜</input> 
+				 <select name="selType" style="float:right;">
+				 	<option value="60">ä¸€å°æ—¶</option>
+				 	<option value="30">åŠå°æ—¶</option>
+					<option value="15">15åˆ†é’Ÿ</option>
+					<option value="5">5åˆ†é’Ÿ</option>
+				 </select>
+		</td>
+		<td>
+				å€¼ç±»å‹ï¼š<select name="avg_total"  id="avg_total" >  
+					  <option value="avg">å‡å€¼</option>
+					  <option value="total">æ€»å’Œ</option>
+				</select>
+		</td>
+		<td>
+          <input type="button" value="è¡¨æ ¼" onclick="reportshow();">    
+          <input type="button" value="ç¼–è¾‘æ¨¡æ¿" onclick='preadd();'>
+          <input type="button" value="å›¾è¡¨" onclick='viewshow();'>
+        </td>
+	</tr>
+	<tr>
 						<td id="line_show" colspan="4">
 							
 						</td>
 						<td>
-							<input type="button" value="Ñ¡ÔñÏßÂ·" onclick='preadd();'>
-							<input type=button value=±í¸ñ onclick="formsubmit();" style="FONT-SIZE: 13px; WIDTH: 40px; COLOR: mediumblue; FONT-FAMILY: ËÎÌå; HEIGHT: 22px; BACKGROUND-COLOR: wheat">
+							<input type="button" value="é€‰æ‹©çº¿è·¯" onclick='preadd();'>
+							<input type=button value=è¡¨æ ¼ onclick="formsubmit();" style="FONT-SIZE: 13px; WIDTH: 40px; COLOR: mediumblue; FONT-FAMILY: å®‹ä½“; HEIGHT: 22px; BACKGROUND-COLOR: wheat">
 						</td>
 					</tr>
-				</table>
-			</td>
-		<tr>
-	</table>
-	<input type=hidden name=report_name value="<%=(String)request.getParameter("report_name")%>">
-	<input type=hidden name=param_type value="<%=(String)request.getParameter("param_type")%>">
-	<input type=hidden name=report_name_cn value="<%=(String)request.getAttribute("report_name_cn")%>">
-<input type=hidden name=part  id=part>
+  </table>
+       <input type="hidden" name="start_time"  id="start_time" >
+	   <input type="hidden" name="end_time"  id="end_time">	
+	   <input type="hidden" name="part" id="part">
 </form>
-<div id="select_line" align="center"
-			style="z-index:3; display: none; background-color: #393939; width: 100%; height: 100%; position: fixed; filter: alpha(opacity:60); opacity: 0.6;">
-			<div style="width: 600px; height:500px; border: 1px solid #E3E3E3; background-color: #F5F5F5; margin-top: 10px;color:#000;">
-				<div style="font-weight: bolder; margin-top:5px;">
-					ÇëÑ¡ÔñÏßÂ·
-				</div>
-				<div style="font-size: 14px; font-weight: normal; font-family: 'Microsoft YaHei', 'Î¢ÈíÑÅºÚ', 'ËÎÌå'; padding:0px 20px;color:#000;">
-					<table align="left" style="color:#000;">
-						<tr>
-							<td>
-								<div id="all_lines" style="border:solid #000 1px;height:400;width:240px;overflow:auto">
-									<div style='width:150px'><input value='00' type='checkbox'><span class='lbl'>È«Â·Íø</span>&nbsp;&nbsp;</div>
-									<div style='width:150px'><input value='01' type='checkbox'><span class='lbl'>¹ìµÀ½»Í¨01ºÅÏß</span>&nbsp;&nbsp;</div>
-									<div style='width:150px'><input value='02' type='checkbox'><span class='lbl'>¹ìµÀ½»Í¨02ºÅÏß</span>&nbsp;&nbsp;</div>
-									<div style='width:150px'><input value='03' type='checkbox'><span class='lbl'>¹ìµÀ½»Í¨03ºÅÏß</span>&nbsp;&nbsp;</div>
-									<div style='width:150px'><input value='04' type='checkbox'><span class='lbl'>¹ìµÀ½»Í¨04ºÅÏß</span>&nbsp;&nbsp;</div>
-									<div style='width:150px'><input value='05' type='checkbox'><span class='lbl'>¹ìµÀ½»Í¨05ºÅÏß</span>&nbsp;&nbsp;</div>
-									<div style='width:150px'><input value='06' type='checkbox'><span class='lbl'>¹ìµÀ½»Í¨06ºÅÏß</span>&nbsp;&nbsp;</div>
-									<div style='width:150px'><input value='07' type='checkbox'><span class='lbl'>¹ìµÀ½»Í¨07ºÅÏß</span>&nbsp;&nbsp;</div>
-									<div style='width:150px'><input value='08' type='checkbox'><span class='lbl'>¹ìµÀ½»Í¨08ºÅÏß</span>&nbsp;&nbsp;</div>
-									<div style='width:150px'><input value='09' type='checkbox'><span class='lbl'>¹ìµÀ½»Í¨09ºÅÏß</span>&nbsp;&nbsp;</div>
-									<div style='width:150px'><input value='10' type='checkbox'><span class='lbl'>¹ìµÀ½»Í¨10ºÅÏß</span>&nbsp;&nbsp;</div>
-									<div style='width:150px'><input value='11' type='checkbox'><span class='lbl'>¹ìµÀ½»Í¨11ºÅÏß</span>&nbsp;&nbsp;</div>
-									<div style='width:150px'><input value='12' type='checkbox'><span class='lbl'>¹ìµÀ½»Í¨12ºÅÏß</span>&nbsp;&nbsp;</div>
-									<div style='width:150px'><input value='13' type='checkbox'><span class='lbl'>¹ìµÀ½»Í¨13ºÅÏß</span>&nbsp;&nbsp;</div>
-									<div style='width:150px'><input value='16' type='checkbox'><span class='lbl'>¹ìµÀ½»Í¨16ºÅÏß</span>&nbsp;&nbsp;</div>
-									<div style='width:150px'><input value='17' type='checkbox'><span class='lbl'>¹ìµÀ½»Í¨17ºÅÏß</span>&nbsp;&nbsp;</div>
-									<div style='width:150px'><input value='41' type='checkbox'><span class='lbl'>¹ìµÀ½»Í¨41ºÅÏß</span>&nbsp;&nbsp;</div>
-								</div>
-							</td>
-							<td width="80" align="center">
-								<input type="button" value=">" onclick="addCheckedLine()" style="font-size:16px;font-weight: bolder"/><br><br>
-								<input type="button" value="<" onclick="remCheckedLine()" style="font-size:16px;font-weight: bolder"/>
-							</td>
-							<td>
-								<div id="select_lines" style="border:solid #000 1px;height:400;width:240px;overflow:auto">
-								
-								</div>
-							</td>
-						</tr>
-						<tr>
-							<td colspan="3" style="text-align: center;">
-								<input type="button" value="¹Ø±Õ" onclick="closediv()" />&nbsp;&nbsp;
-								<input type="button" value="È·¶¨" onclick="add()" />
-							</td>
-						</tr>
-					</table>
-				</div>
+	<div id="passwordId" align="center" style="z-index:2;display:none;background-color:#393939;width:100%;height:100%;position:fixed;filter:alpha(opacity:60);opacity:0.6;">
+		<div style="width:300px;height:150px;border:1px solid #E3E3E3;background-color:#F5F5F5;margin-top:10px">
+			<div style="font-weight: bolder;margin-top:15px;">è¾“å…¥ç¼–è¾‘æ¨¡æ¿å¯†ç </div>
+			<div style="font-size:14px;font-weight:normal;font-family:'Microsoft YaHei','å¾®è½¯é›…é»‘','å®‹ä½“';padding:20px">
+				å¯†ç :<input type="password" id="passwordVal" style="width:170px;"/>
 			</div>
-<script type="text/javascript"> 
+			<div>
+				<input type="button" value="å…³é—­" onclick="closediv()"/>&nbsp;&nbsp;
+				<input type="button" value="ç¡®å®š" onclick="add()"/>
+			</div>
+		</div>
+		<script type="text/javascript">
+			var start_date1="<%=start_date1%>";
+			var start_date2="<%=start_date2%>";
+			var com_date1="<%=com_date1%>";
+			var com_date2="<%=com_date2%>";
+			$('#start_date1,#start_date2,#com_date1,#com_date2').datepicker();
+   			$('#start_date1,#start_date2,#com_date1,#com_date2').datepicker('option', 'dateFormat', 'yymmdd');
+			if(start_date1){
+   				$('#start_date1').datepicker('setDate', start_date1);
+   			}else{
+   				$('#start_date1').datepicker('setDate', new Date());
+   			}
+			if(start_date2){
+   				$('#start_date2').datepicker('setDate', start_date2);
+   			}else{
+   				$('#start_date2').datepicker('setDate', '-1d');
+   			}
+			$('#com_date1').datepicker('setDate', com_date1);
+			$('#com_date2').datepicker('setDate', com_date2);
+			
+			$("#date_flag").val("<%=date_flag%>");
+			$("#fir_hour").val("<%=fir_hour%>");
+			$("#fir_min").val("<%=fir_min%>");
+			$("#sec_hour").val("<%=sec_hour%>");
+			$("#sec_min").val("<%=sec_min%>");
+			$("#selType").val("<%=selType%>");
+			$("#avg_total").val("<%=avg_total%>");
 
-	$('.datecla').datepicker();
-   	$('.datecla').datepicker('option', 'dateFormat', 'yymmdd');
-	
-	$('#start_date1').val("<%=start_date1%>");
-	$('#com_date1').val("<%=com_date1%>");
-	
-	$('#start_date2').val("<%=start_date2%>");
-	$('#com_date2').val("<%=com_date2%>");
-	
-	$("#date_flag").val("<%=date_flag%>");
-	
-	$("#avg_total").val("<%=avg_total%>");
-	
-	$("#rank_method").val("<%=rank_method%>");
-	
-	var flag='<%=flag%>';
-    var flag_box=document.getElementsByName("flag");
-   	for(var i=0;i<flag_box.length;i++){
-   		if(flag.toString().indexOf(flag_box[i].value)>-1){
-   			flag_box[i].checked=true;
-   		}else{
-			flag_box[i].checked=false;
-		}
-   	}
-   	
-	var selLine = "<%=strline%>";
+
+var selLine = "<%=strline%>";
 	if(selLine){
 		var selLines=selLine.split(",");
 		var tp_ht="";
@@ -316,42 +399,71 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			if(v=='00'){
 				flagall = true;
 			}
-			tp_ht+="¹ìµÀ½»Í¨"+v+"ºÅÏß;&nbsp;&nbsp;<input type='hidden' name='lines' value='"+v+"'>";
+			tp_ht+="è½¨é“äº¤é€š"+v+"å·çº¿;&nbsp;&nbsp;<input type='hidden' name='lines' value='"+v+"'>";
 		});
 		
 		if(flagall){
-			$("#line_show").html("È«Â·Íø<input type='hidden' name='lines' value='00'>");
+			$("#line_show").html("å…¨è·¯ç½‘<input type='hidden' name='lines' value='00'>");
 		}else{
 			$("#line_show").html(tp_ht);
 		}
 		
 	}
-	
-   	$('#fir_hour').val("<%=fir_hour%>");
-   	$('#fir_min').val("<%=fir_min%>");
-   	$('#sec_hour').val("<%=sec_hour%>");
-   	$('#sec_min').val("<%=sec_min%>");
-	
-	
-
-   	function formsubmit(){
-	   var date1=document.getElementById("start_date1").value;
-	   var date2=document.getElementById("com_date1").value;
-	   var d1=new Date(date1.substr(0,4),date1.substr(4,2),date1.substr(6,2));
-	    var d2=new Date(date2.substr(0,4),date2.substr(4,2),date2.substr(6,2));
-		var gap=(d1-d2)/(24*60*60*1000);
-	   if(gap>60){
-	        document.getElementById("part").value="0";
-		    form1.submit();     
-	   }else{
-			document.getElementById("part").value="1";
-		 	form1.submit();     
-	   }
-	}
-	
-		//Ìí¼ÓÑ¡ÖĞµÄÏßÂ·
+			function preadd(){
+		  	 	document.getElementById("passwordId").style.display="";
+		  	}
+			function closediv(){
+				document.getElementById("passwordId").style.display="none";
+			}
+			function add(){
+				var temp=document.getElementById("passwordVal").value;
+				var date=new Date();
+				var mm=date.getMonth()+1;
+				var dd=date.getDate();
+				if(mm<10){mm="0"+mm;}
+				if(dd<10){dd="0"+dd;}
+				if("metro"+date.getFullYear()+mm+dd==temp){
+					document.getElementById("passwordId").style.display="none";
+					document.form1.action="<%=baseUrl%>/qf_report_view/pages/module/add_model.jsp";
+		  	  		document.form1.submit();
+				}else{
+					alert("å¯†ç è¾“å…¥é”™è¯¯ï¼Œè¯·é‡æ–°è¾“å…¥ï¼");
+				}
+		  	}
+			function viewshow(){
+				document.form1.action="/qf_report_new/station_flow_model_new.jsp";
+		  	  	document.form1.submit();
+			}
+			function reportshow(){
+				 var fir_hour=document.getElementById("fir_hour").value;
+				 var fir_min=document.getElementById("fir_min").value;
+				 var start_time=fir_hour+fir_min;
+				 var sec_hour=document.getElementById("sec_hour").value;
+				 var sec_min=document.getElementById("sec_min").value;
+				 var end_time=sec_hour+sec_min;
+				 document.getElementById("start_time").value=start_time;
+				 document.getElementById("end_time").value=end_time;
+				 if(start_time>end_time){
+				 alert("ç»“æŸæ—¶é—´ç‚¹ä¸èƒ½æ—©äºå¼€å§‹æ—¶é—´ç‚¹");
+				 return;
+				 }
+				 var date1=document.getElementById("start_date1").value;
+	             var date2=document.getElementById("start_date2").value;
+	             var d1=new Date(date1.substr(0,4),date1.substr(4,2),date1.substr(6,2));
+	             var d2=new Date(date2.substr(0,4),date2.substr(4,2),date2.substr(6,2));
+		         var gap=(d1-d2)/(24*60*60*1000);
+	             if(gap>60){
+	                document.getElementById("part").value="0";  
+	             }else{
+				    document.getElementById("part").value="1"; 
+				 }
+				document.getElementById("viewFlag").value="1";
+				document.form1.submit();
+			}
+			
+				//æ·»åŠ é€‰ä¸­çš„çº¿è·¯
 	function addCheckedLine() {
-		//»ñÈ¡Ñ¡ÖĞµÄÏßÂ·
+		//è·å–é€‰ä¸­çš„çº¿è·¯
 		var lines = $("#all_lines input[type='checkbox']:checked");
 		if (lines && lines.length > 0) {
 			
@@ -367,39 +479,39 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 							var tp = "";
 							if(v.value=='00'){
 								tp = "<div style='width:150px'><input value='"+ v.value
-									+ "' type='checkbox'><span class='lbl'>È«Â·Íø</span>&nbsp;&nbsp;</div>";
+									+ "' type='checkbox'><span class='lbl'>å…¨è·¯ç½‘</span>&nbsp;&nbsp;</div>";
 							}else{
 								tp = "<div style='width:150px'><input value='"+ v.value
-									+ "' type='checkbox'><span class='lbl'>¹ìµÀ½»Í¨"+ v.value
-									+ "ºÅÏß</span>&nbsp;&nbsp;</div>";
+									+ "' type='checkbox'><span class='lbl'>è½¨é“äº¤é€š"+ v.value
+									+ "å·çº¿</span>&nbsp;&nbsp;</div>";
 							}
 							$("#select_lines").append(tp);
 						}
 					});
 		} else {
-			alert("ÇëÑ¡ÔñÒªÌí¼ÓµÄÏßÂ·£¡");
+			alert("è¯·é€‰æ‹©è¦æ·»åŠ çš„çº¿è·¯ï¼");
 		}
 	}
-	//ÒÆ³ıÑ¡ÖĞµÄÏßÂ·
+	//ç§»é™¤é€‰ä¸­çš„çº¿è·¯
 	function remCheckedLine() {
-		//»ñÈ¡Ñ¡ÖĞµÄÏßÂ·
+		//è·å–é€‰ä¸­çš„çº¿è·¯
 		var lines = $("#select_lines input[type='checkbox']:checked");
 		if (!(lines && lines.length > 0)) {
-			alert("ÇëÑ¡ÔñÒªÒÆ³ıµÄÏßÂ·£¡");
+			alert("è¯·é€‰æ‹©è¦ç§»é™¤çš„çº¿è·¯ï¼");
 		}
 		lines.each(function(i, v) {
 			$(this).parent().remove();
 		});
 	}
-	//µ¯³öÏßÂ·Ñ¡Ïî
+	//å¼¹å‡ºçº¿è·¯é€‰é¡¹
 	function preadd() {
 		$("#select_line").show();
 	}
-	//¹Ø±ÕÏßÂ·Ñ¡Ïî
+	//å…³é—­çº¿è·¯é€‰é¡¹
 	function closediv() {
 		$("#select_line").hide();
 	}
-	//Ñ¡ÔñÏßÂ·
+	//é€‰æ‹©çº¿è·¯
 	function add() {
 		$("#select_line").hide();
 		var lines = $("#select_lines input[type='checkbox']");
@@ -409,19 +521,70 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			if(v.value=='00'){
 				flagall = true;
 			}
-			tp_ht+="¹ìµÀ½»Í¨"+v.value+"ºÅÏß;&nbsp;&nbsp;<input type='hidden' name='lines' value='"+v.value+"'>";
+			tp_ht+="è½¨é“äº¤é€š"+v.value+"å·çº¿;&nbsp;&nbsp;<input type='hidden' name='lines' value='"+v.value+"'>";
 		});
 		if(flagall){
-			$("#line_show").html("È«Â·Íø<input type='hidden' name='lines' value='00'>");
+			$("#line_show").html("å…¨è·¯ç½‘<input type='hidden' name='lines' value='00'>");
 		}else{
 			$("#line_show").html(tp_ht);
 		}
 		
 	}
 
-</script>
-<%if(flags!=null){%>
-<report:html name="line_add_part" reportFileName="custom_line_yoy.raq"
+		</script>
+	</div>
+<div id="select_line" align="center"
+			style="z-index:3; display: none; background-color: #393939; width: 100%; height: 100%; position: fixed; filter: alpha(opacity:60); opacity: 0.6;">
+			<div style="width: 600px; height:500px; border: 1px solid #E3E3E3; background-color: #F5F5F5; margin-top: 10px;color:#000;">
+				<div style="font-weight: bolder; margin-top:5px;">
+					è¯·é€‰æ‹©çº¿è·¯
+				</div>
+				<div style="font-size: 14px; font-weight: normal; font-family: 'Microsoft YaHei', 'å¾®è½¯é›…é»‘', 'å®‹ä½“'; padding:0px 20px;color:#000;">
+					<table align="left" style="color:#000;">
+						<tr>
+							<td>
+								<div id="all_lines" style="border:solid #000 1px;height:400;width:240px;overflow:auto">
+									<div style='width:150px'><input value='00' type='checkbox'><span class='lbl'>å…¨è·¯ç½‘</span>&nbsp;&nbsp;</div>
+									<div style='width:150px'><input value='01' type='checkbox'><span class='lbl'>è½¨é“äº¤é€š01å·çº¿</span>&nbsp;&nbsp;</div>
+									<div style='width:150px'><input value='02' type='checkbox'><span class='lbl'>è½¨é“äº¤é€š02å·çº¿</span>&nbsp;&nbsp;</div>
+									<div style='width:150px'><input value='03' type='checkbox'><span class='lbl'>è½¨é“äº¤é€š03å·çº¿</span>&nbsp;&nbsp;</div>
+									<div style='width:150px'><input value='04' type='checkbox'><span class='lbl'>è½¨é“äº¤é€š04å·çº¿</span>&nbsp;&nbsp;</div>
+									<div style='width:150px'><input value='05' type='checkbox'><span class='lbl'>è½¨é“äº¤é€š05å·çº¿</span>&nbsp;&nbsp;</div>
+									<div style='width:150px'><input value='06' type='checkbox'><span class='lbl'>è½¨é“äº¤é€š06å·çº¿</span>&nbsp;&nbsp;</div>
+									<div style='width:150px'><input value='07' type='checkbox'><span class='lbl'>è½¨é“äº¤é€š07å·çº¿</span>&nbsp;&nbsp;</div>
+									<div style='width:150px'><input value='08' type='checkbox'><span class='lbl'>è½¨é“äº¤é€š08å·çº¿</span>&nbsp;&nbsp;</div>
+									<div style='width:150px'><input value='09' type='checkbox'><span class='lbl'>è½¨é“äº¤é€š09å·çº¿</span>&nbsp;&nbsp;</div>
+									<div style='width:150px'><input value='10' type='checkbox'><span class='lbl'>è½¨é“äº¤é€š10å·çº¿</span>&nbsp;&nbsp;</div>
+									<div style='width:150px'><input value='11' type='checkbox'><span class='lbl'>è½¨é“äº¤é€š11å·çº¿</span>&nbsp;&nbsp;</div>
+									<div style='width:150px'><input value='12' type='checkbox'><span class='lbl'>è½¨é“äº¤é€š12å·çº¿</span>&nbsp;&nbsp;</div>
+									<div style='width:150px'><input value='13' type='checkbox'><span class='lbl'>è½¨é“äº¤é€š13å·çº¿</span>&nbsp;&nbsp;</div>
+									<div style='width:150px'><input value='16' type='checkbox'><span class='lbl'>è½¨é“äº¤é€š16å·çº¿</span>&nbsp;&nbsp;</div>
+									<div style='width:150px'><input value='17' type='checkbox'><span class='lbl'>è½¨é“äº¤é€š17å·çº¿</span>&nbsp;&nbsp;</div>
+									<div style='width:150px'><input value='41' type='checkbox'><span class='lbl'>è½¨é“äº¤é€š41å·çº¿</span>&nbsp;&nbsp;</div>
+								</div>
+							</td>
+							<td width="80" align="center">
+								<input type="button" value=">" onclick="addCheckedLine()" style="font-size:16px;font-weight: bolder"/><br><br>
+								<input type="button" value="<" onclick="remCheckedLine()" style="font-size:16px;font-weight: bolder"/>
+							</td>
+							<td>
+								<div id="select_lines" style="border:solid #000 1px;height:400;width:240px;overflow:auto">
+								
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td colspan="3" style="text-align: center;">
+								<input type="button" value="å…³é—­" onclick="closediv()" />&nbsp;&nbsp;
+								<input type="button" value="ç¡®å®š" onclick="add()" />
+							</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+</div>
+<%if(flags!=null&&"1".equals(viewFlag)){%>
+<report:html name="station_pass_show_part" reportFileName="custom_line_yoy.raq"
 	funcBarLocation="boTh"
 	needPageMark="yes" 
 	scale="1"
@@ -432,13 +595,37 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	needSaveAsExcel="yes"
 	needSaveAsPdf="yes"
 	needPrint="yes"
-	pageMarkLabel="Ò³ºÅ{currpage}/{totalPage}"
-	printLabel="´òÓ¡"
+	pageMarkLabel="é¡µå·{currpage}/{totalPage}"
+	printLabel="æ‰“å°"
 	displayNoLinkPageMark="yes"
 	params="<%=paramsString%>"
-	saveAsName="ÏßÂ·¿ÍÁ÷Í¬±È"
+	saveAsName="è‡ªå®šä¹‰çº¿è·¯åŒæ¯”"
 	useCache="no"
 />
 <%}%>
+
+<%
+	     if(rs != null){   // å…³é—­è®°å½•é›†    
+        try{    
+				rs.close() ;    
+			}catch(Exception e){    
+				e.printStackTrace() ;    
+			}    
+          }    
+    if(st != null){   // å…³é—­å£°æ˜    
+        try{    
+				st.close() ;    
+			}catch(Exception e){    
+				e.printStackTrace() ;    
+			}    
+        }    
+          if(con != null){  // å…³é—­è¿æ¥å¯¹è±¡    
+         try{    
+				con.close() ;    
+			}catch(Exception e){    
+				e.printStackTrace() ;    
+			}    
+       }  
+%>
 </body>
 </html>
