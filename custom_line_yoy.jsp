@@ -16,11 +16,11 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 <%
 	String start_date1=(String)request.getParameter("start_date1");
 	
-	String end_date1=(String)request.getParameter("end_date1");
-	
 	String start_date2=(String)request.getParameter("start_date2");
 	
-	String end_date2=(String)request.getParameter("end_date2");
+	String com_date1=(String)request.getParameter("com_date1");
+	
+	String com_date2=(String)request.getParameter("com_date2");
 	
 	String date_flag=(String)request.getParameter("date_flag");
 	
@@ -46,17 +46,17 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	if(start_date1==null){
 	  start_date1=df.format(new java.util.Date()); 
     }
-	if(end_date1==null){
-	  end_date1=start_date1; 
-    }	
 	if(start_date2==null){
+	  start_date2=start_date1; 
+    }	
+	if(com_date1==null){
 	    Calendar calendar = Calendar.getInstance(); 
         calendar.setTime(new java.util.Date());
         calendar.add(Calendar.DAY_OF_MONTH, -1);  
-	    start_date2=df.format(calendar.getTime());
+	    com_date1=df.format(calendar.getTime());
      }
-	 if(end_date2==null){
-	  end_date2=start_date2; 
+	 if(com_date2==null){
+	  com_date2=com_date1; 
     }
 	 
 	 String[] flags=request.getParameterValues("flag");
@@ -81,7 +81,9 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
          start_time="s020000";
          end_time="a020000";
      }
-	 String paramsString="start_date1="+start_date1+";start_date2="+start_date2+";flag="+flag;paramsString+=";start_time="+start_time+";end_time="+end_time+";part="+part+";end_date1="+end_date1+";end_date2="+end_date2;
+	 String paramsString="start_date1="+start_date1+";com_date1="+com_date1+";flag="+flag;
+	 paramsString+=";start_time="+start_time+";end_time="+end_time+";part="+part+";start_date2="+start_date2+";com_date2="+com_date2;
+	 paramsString+=";avg_total="+avg_total+";lines="+lines+";rank_method="+rank_method;
 //out.println(paramsString);
 
 		
@@ -93,8 +95,8 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 			<td>
 				<table border="1">
 					<tr>
-						<td>查询日期：<input type=text name="start_date1" style="width:80px;" id="start_date1">-<input type=text name="end_date1" id="end_date1" style="width:80px;"> </td>
-						<td>对比日期：<input type=text name="start_date2" style="width:80px;" id="start_date2">-<input type=text name="end_date2" id="end_date2" style="width:80px;"></td>
+						<td>查询日期：<input type=text name="start_date1" style="width:80px;" id="start_date1">-<input type=text name="start_date2" id="start_date2" style="width:80px;"> </td>
+						<td>对比日期：<input type=text name="com_date1" style="width:80px;" id="com_date1">-<input type=text name="com_date2" id="com_date2" style="width:80px;"></td>
 						<td>日期类型：<select name="date_flag"  id="date_flag" >  
 								  <option value="">全部</option>
 								  <option value="1">工作日</option>
@@ -284,10 +286,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
    	$('.datecla').datepicker('option', 'dateFormat', 'yymmdd');
 	
 	$('#start_date1').val("<%=start_date1%>");
-	$('#start_date2').val("<%=start_date2%>");
+	$('#com_date1').val("<%=com_date1%>");
 	
-	$('#end_date1').val("<%=end_date1%>");
-	$('#end_date2').val("<%=end_date2%>");
+	$('#start_date2').val("<%=start_date2%>");
+	$('#com_date2').val("<%=com_date2%>");
 	
 	$("#date_flag").val("<%=date_flag%>");
 	
@@ -334,7 +336,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 
    	function formsubmit(){
 	   var date1=document.getElementById("start_date1").value;
-	   var date2=document.getElementById("start_date2").value;
+	   var date2=document.getElementById("com_date1").value;
 	   var d1=new Date(date1.substr(0,4),date1.substr(4,2),date1.substr(6,2));
 	    var d2=new Date(date2.substr(0,4),date2.substr(4,2),date2.substr(6,2));
 		var gap=(d1-d2)/(24*60*60*1000);
