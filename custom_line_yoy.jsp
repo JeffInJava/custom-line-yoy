@@ -226,26 +226,15 @@
 				<input type=text name="com_date1" id="com_date1" style="width:80px;">-<input type=text name="com_date2" id="com_date2" style="width:80px;">
 		 </td>
 		  <td>
-				模板：<select name="model_id" id="model_id" onchange="change();">  
-					         
-				</select>
-				<input type="hidden" name="viewFlag" id="viewFlag">
-		  </td>
-		  <td>
-				二级模板：<select name="addr_id"  id="addr_id" >  
-					  <option value="全部">全部</option>
-				</select>
-		  </td>
-		  <td>
 				日期类型：<select name="date_flag"  id="date_flag" >  
 					  <option value="">全部</option>
 					  <option value="1">工作日</option>
 					  <option value="2">双休日</option>
 				</select>
+				<input type="hidden" name="viewFlag" id="viewFlag">
 		  </td>
-      </tr>
-	  <tr>
-		   <td >开始时间点：
+		  <td>
+				开始时间点：
 		              <select name="fir_hour" id="fir_hour">
 							<option value="00">全天</option>
 							<option value="02">02</option>
@@ -278,8 +267,9 @@
 							<option value="00">00</option>
 							<option value="30">30</option>
 						</select>
-		 </td>
-		 <td >结束时间点：
+		  </td>
+		  <td>
+				结束时间点：
 						<select name="sec_hour" id="sec_hour">
 							<option value="24">全天</option>
 							<option value="02">02</option>
@@ -312,7 +302,9 @@
 							<option value="00">00</option>
 							<option value="30">30</option>
 						</select>
-		</td>
+		  </td>
+      </tr>
+	  <tr>
 	    <td>
                  <input type="checkbox" name="flag" value="1"  <%if(flag.indexOf('1')!=-1){%> checked="checked"<%}%>>进站</input>
 				 <input type="checkbox" name="flag" value="2"  <%if(flag.indexOf('2')!=-1){%> checked="checked"<%}%>>出站</input>
@@ -331,9 +323,13 @@
 				</select>
 		</td>
 		<td>
-          <input type="button" value="表格" onclick="reportshow();">    
-          <input type="button" value="编辑模板" onclick='preadd();'>
-          <input type="button" value="图表" onclick='viewshow();'>
+          排序方式：
+							<select name="rank_method" id="rank_method">
+								<option value='xl'>按线路顺序</option>
+								<option value='kl'>按客流排名顺序</option>
+								<option value='zl'>按增量排序</option>
+								<option value='zf'>按增幅排序</option>
+							</select>
         </td>
 	</tr>
 	<tr>
@@ -342,7 +338,7 @@
 						</td>
 						<td>
 							<input type="button" value="选择线路" onclick='preadd();'>
-							<input type=button value=表格 onclick="formsubmit();" style="FONT-SIZE: 13px; WIDTH: 40px; COLOR: mediumblue; FONT-FAMILY: 宋体; HEIGHT: 22px; BACKGROUND-COLOR: wheat">
+							<input type=button value=表格 onclick="reportshow();" style="FONT-SIZE: 13px; WIDTH: 40px; COLOR: mediumblue; FONT-FAMILY: 宋体; HEIGHT: 22px; BACKGROUND-COLOR: wheat">
 						</td>
 					</tr>
   </table>
