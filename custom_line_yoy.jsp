@@ -115,6 +115,9 @@
 					  urlString+="&model_id="+model_id;
 					  paramsString+=";model_id="+model_id;
 				}
+				if(strline!=null){
+					paramsString+=";strline="+strline;
+				}
 				
 				String date_flag=request.getParameter("date_flag");
 				String avg_total=request.getParameter("avg_total");
