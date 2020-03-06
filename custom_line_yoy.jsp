@@ -209,7 +209,7 @@
 </script>
 
 <head>
-	<title>自定义车站客流</title>
+	<title>自定义线路同比</title>
 	 <base href="<%=basePath%>">	
    <script src="resource/jquery/js/jquery-1.7.2.js" type="text/javascript" charset="UTF-8"></script>
     <script src="resource/jquery/js/jquery-ui-1.8.11.custom.min.js" type="text/javascript" charset="UTF-8"></script>
