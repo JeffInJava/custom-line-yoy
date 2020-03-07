@@ -24,7 +24,7 @@
 			    String sec_min=request.getParameter("sec_min");		  
 			    String addr=request.getParameter("addr_id");
 			    String selType=request.getParameter("selType");
-				
+				String rank_method = request.getParameter("rank_method");
 				String[] lines = request.getParameterValues("lines");
 	
 	String strline="";
@@ -117,6 +117,9 @@
 				}
 				if(strline!=null){
 					paramsString+=";strline="+strline;
+				}
+				if(rank_method!=null){
+					paramsString+=";rank_method="+rank_method;
 				}
 				
 				String date_flag=request.getParameter("date_flag");
@@ -386,6 +389,7 @@
 			$("#sec_hour").val("<%=sec_hour%>");
 			$("#sec_min").val("<%=sec_min%>");
 			$("#selType").val("<%=selType%>");
+			$("#rank_method").val("<%=rank_method%>");
 			$("#avg_total").val("<%=avg_total%>");
 
 
