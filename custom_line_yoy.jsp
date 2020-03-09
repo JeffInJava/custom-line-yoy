@@ -269,7 +269,7 @@
 							<option value="a01">+01</option>
 							<option value="a02">+02</option>
 						</select>
-						<select name="fir_min" id="fir_min">
+						<select name="fir_min" id="fir_min" onchange="setintervalf(this.value);">
 							<option value="00">00</option>
 							<option value="30">30</option>
 						</select>
@@ -304,7 +304,7 @@
 							<option value="a01">+01</option>
 							<option value="a02">+02</option>
 						</select>
-						<select name="sec_min" id="sec_min">
+						<select name="sec_min" id="sec_min" onchange="setintervals(this.value);">
 							<option value="00">00</option>
 							<option value="30">30</option>
 						</select>
@@ -315,11 +315,9 @@
                  <input type="checkbox" name="flag" value="1"  <%if(flag.indexOf('1')!=-1){%> checked="checked"<%}%>>进站</input>
 				 <input type="checkbox" name="flag" value="2"  <%if(flag.indexOf('2')!=-1){%> checked="checked"<%}%>>出站</input>
 				 <input type="checkbox" name="flag" value="3" <%if(flag.indexOf('3')!=-1){%> checked="checked"<%}%>>换乘</input> 
-				 <select name="selType" style="float:right;">
+				 <select name="selType" style="float:right;" id="selType">
 				 	<option value="60">一小时</option>
 				 	<option value="30">半小时</option>
-					<option value="15">15分钟</option>
-					<option value="5">5分钟</option>
 				 </select>
 		</td>
 		<td>
@@ -412,6 +410,16 @@ var selLine = "<%=strline%>";
 		}
 		
 	}
+			function setintervalf(v){
+				$("#selType").val(v);
+				$("#sec_min").val(v);
+				console.log('f'+v);
+			}
+			function setintervals(v){
+				$("#selType").val(v);
+				$("#fir_min").val(v);
+				console.log('s'+v);
+			}
 			function preadd(){
 		  	 	document.getElementById("passwordId").style.display="";
 		  	}
@@ -547,7 +555,6 @@ var selLine = "<%=strline%>";
 						<tr>
 							<td>
 								<div id="all_lines" style="border:solid #000 1px;height:400;width:240px;overflow:auto">
-									<div style='width:150px'><input value='00' type='checkbox'><span class='lbl'>全路网</span>&nbsp;&nbsp;</div>
 									<div style='width:150px'><input value='01' type='checkbox'><span class='lbl'>轨道交通01号线</span>&nbsp;&nbsp;</div>
 									<div style='width:150px'><input value='02' type='checkbox'><span class='lbl'>轨道交通02号线</span>&nbsp;&nbsp;</div>
 									<div style='width:150px'><input value='03' type='checkbox'><span class='lbl'>轨道交通03号线</span>&nbsp;&nbsp;</div>
