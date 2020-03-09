@@ -39,7 +39,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	String sec_min=request.getParameter("sec_min")==null?"00":request.getParameter("sec_min");
 	String paramsString="start_date1="+start_date1+";start_date2="+start_date2+";state="+flag;
 	String start_time=fir_hour+fir_min+"00";                
-	String end_time=("00".equals(sec_hour)?"24":sec_hour)+sec_min+"59";
+	String end_time=("00".equals(sec_hour)?"24":sec_hour)+sec_min+"00";
 	 if(enter_flags!=null){
   	  for(String tp:enter_flags){
   		enter_flag+=","+tp;
@@ -66,7 +66,7 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	//	     Calendar cal=Calendar.getInstance();
 	//	     cal.add(Calendar.MINUTE,-30);
             //  SimpleDateFormat sdf = new SimpleDateFormat("HHmm"); 
-	//	      end_time=sdf.format(cal.getTime())+"59";
+	//	      end_time=sdf.format(cal.getTime())+"00";
 	//	  }
 	     
 	// }
