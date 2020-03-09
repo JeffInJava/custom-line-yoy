@@ -413,12 +413,10 @@ var selLine = "<%=strline%>";
 			function setintervalf(v){
 				$("#selType").val(v);
 				$("#sec_min").val(v);
-				console.log('f'+v);
 			}
 			function setintervals(v){
 				$("#selType").val(v);
 				$("#fir_min").val(v);
-				console.log('s'+v);
 			}
 			function preadd(){
 		  	 	document.getElementById("passwordId").style.display="";
