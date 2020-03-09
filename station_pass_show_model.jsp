@@ -261,7 +261,7 @@
 							<option value="a01">+01</option>
 							<option value="a02">+02</option>
 						</select>
-						<select name="fir_min" id="fir_min">
+						<select name="fir_min" id="fir_min" onchange="setintervalf(this.value);">
 							<option value="00">00</option>
 							<option value="30">30</option>
 						</select>
@@ -295,7 +295,7 @@
 							<option value="a01">+01</option>
 							<option value="a02">+02</option>
 						</select>
-						<select name="sec_min" id="sec_min">
+						<select name="sec_min" id="sec_min" onchange="setintervals(this.value);">
 							<option value="00">00</option>
 							<option value="30">30</option>
 						</select>
@@ -304,11 +304,9 @@
                  <input type="checkbox" name="flag" value="1"  <%if(flag.indexOf('1')!=-1){%> checked="checked"<%}%>>进站</input>
 				 <input type="checkbox" name="flag" value="2"  <%if(flag.indexOf('2')!=-1){%> checked="checked"<%}%>>出站</input>
 				 <input type="checkbox" name="flag" value="3" <%if(flag.indexOf('3')!=-1){%> checked="checked"<%}%>>换乘</input> 
-				 <select name="selType" style="float:right;">
+				 <select name="selType" id="selType" style="float:right;">
 				 	<option value="60">一小时</option>
 				 	<option value="30">半小时</option>
-					<option value="15">15分钟</option>
-					<option value="5">5分钟</option>
 				 </select>
 		</td>
 		<td>
@@ -367,6 +365,14 @@
 			$("#selType").val("<%=selType%>");
 			$("#avg_total").val("<%=avg_total%>");
 
+			function setintervalf(v){
+				$("#selType").val(v);
+				$("#sec_min").val(v);
+			}
+			function setintervals(v){
+				$("#selType").val(v);
+				$("#fir_min").val(v);
+			}
 			function preadd(){
 		  	 	document.getElementById("passwordId").style.display="";
 		  	}
