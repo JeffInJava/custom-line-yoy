@@ -367,11 +367,9 @@
 
 			function setintervalf(v){
 				$("#selType").val(v);
-				$("#sec_min").val(v);
 			}
 			function setintervals(v){
 				$("#selType").val(v);
-				$("#fir_min").val(v);
 			}
 			function preadd(){
 		  	 	document.getElementById("passwordId").style.display="";
